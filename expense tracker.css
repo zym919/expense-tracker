@@ -66,3 +66,12 @@ body {
     color: white;
   }
   
+  .report-table {
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .report-table th, .report-table td {
+    text-align: center;
+  }
+  
