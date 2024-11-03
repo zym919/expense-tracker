@@ -12,9 +12,12 @@ body {
     padding: 1rem;
   }
   
+  .currency-selection select {
+    width: 120px;
+  }
+  
   .expense-form,
   .expense-table,
-  .chart-container,
   .report {
     margin: 1rem auto;
     width: 80%;
@@ -28,7 +31,7 @@ body {
     padding: 0.5rem;
   }
   
-  button.add-expense, button.print-report {
+  button.add-expense, button.generate-report {
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -42,6 +45,7 @@ body {
   table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 1rem;
   }
   
   table, th, td {

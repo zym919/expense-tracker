@@ -1,4 +1,6 @@
 document.querySelector('.add-expense').addEventListener('click', addExpense);
+document.querySelector('.generate-report').addEventListener('click', generateReport);
+
 const expenses = [];
 const currencyRates = {
   USD: 1,
@@ -18,9 +20,9 @@ async function addExpense() {
   const convertedAmount = await convertCurrency(amount, currency);
   expenses.push({ date, category, amount: convertedAmount, currency, remarks });
   renderExpenses();
-  updateChart();
 }
 
+// Convert currency with fallback rates
 async function convertCurrency(amount, currency) {
   try {
     const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
@@ -47,44 +49,28 @@ function renderExpenses() {
   });
 }
 
-function updateChart() {
+// Generate and display the report
+function generateReport() {
+  const reportTable = document.querySelector('.report-table');
+  const reportBody = reportTable.querySelector('tbody');
+  const grandTotalCell = document.querySelector('.grand-total');
+
+  // Calculate totals per category
   const categoryTotals = {};
   expenses.forEach(expense => {
     categoryTotals[expense.category] = (categoryTotals[expense.category] || 0) + expense.amount;
   });
 
-  const chart = document.getElementById('expenseChart').getContext('2d');
-  new Chart(chart, {
-    type: 'pie',
-    data: {
-      labels: Object.keys(categoryTotals),
-      datasets: [{
-        data: Object.values(categoryTotals),
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF9F40', '#4BC0C0'],
-      }],
-    },
-  });
-}
+  // Clear and populate report table
+  reportBody.innerHTML = '';
+  let grandTotal = 0;
+  for (const [category, total] of Object.entries(categoryTotals)) {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${category}</td><td>${total.toFixed(2)}</td>`;
+    reportBody.appendChild(row);
+    grandTotal += total;
+  }
 
-document.querySelector('.print-report').addEventListener('click', printReport);
-
-function printReport() {
-  const startDate = prompt('Enter start date (YYYY-MM-DD):');
-  const endDate = prompt('Enter end date (YYYY-MM-DD):');
-
-  const filteredExpenses = expenses.filter(expense => 
-    new Date(expense.date) >= new Date(startDate) && new Date(expense.date) <= new Date(endDate)
-  );
-
-  let reportContent = `Expense Report from ${startDate} to ${endDate}\n\n`;
-  reportContent += `Date\tCategory\tAmount\tRemarks\tCurrency\n`;
-
-  filteredExpenses.forEach(expense => {
-    reportContent += `${expense.date}\t${expense.category}\t${expense.amount.toFixed(2)}\t${expense.remarks}\t${expense.currency}\n`;
-  });
-
-  const reportWindow = window.open('', '_blank');
-  reportWindow.document.write(`<pre>${reportContent}</pre>`);
-  reportWindow.document.close();
-  reportWindow.print();
+  grandTotalCell.textContent = grandTotal.toFixed(2);
+  reportTable.style.display = 'table';
 }

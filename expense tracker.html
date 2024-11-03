@@ -44,12 +44,23 @@
     </table>
   </section>
 
-  <section class="chart-container">
-    <canvas id="expenseChart" width="400" height="400"></canvas>
-  </section>
-
   <section class="report">
-    <button type="button" class="print-report">Print Report</button>
+    <button type="button" class="generate-report">Generate Report</button>
+    <table class="report-table" style="display:none;">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Total Amount</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr>
+          <th>Grand Total</th>
+          <th class="grand-total"></th>
+        </tr>
+      </tfoot>
+    </table>
   </section>
 
   <script src="expense tracker.js"></script>
