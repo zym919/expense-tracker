@@ -1,0 +1,77 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+  }
+  
+  header {
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .currency-selection {
+    display: flex;
+    justify-content: center;
+    margin: 1rem auto;
+  }
+  
+  .currency-selection label,
+  .currency-selection select {
+    text-align: center;
+    width: 120px;
+  }
+
+  .expense-form,
+  .expense-table,
+  .report {
+    margin: 1rem auto;
+    width: 80%;
+    max-width: 600px;
+  }
+  
+  input, textarea, select, button {
+    display: block;
+    width: 100%;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+  }
+  
+  button.add-expense, button.generate-report {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  table, th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  th {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .report-table {
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .report-table th, .report-table td {
+    text-align: center;
+  }
+  

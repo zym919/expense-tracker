@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker</title>
+  <link rel="stylesheet" href="expense tracker.css">
+</head>
+<body>
+  <header>
+    <h1>Expense Tracker</h1>
+  </header>
+
+  <section class="currency-selection">
+    <label for="currency">Select Currency: </label>
+    <select name="currency">
+        <option value="USD">$ - USD</option>
+        <option value="EUR">€ - EUR</option>
+        <option value="GBP">£ - GBP</option>
+        <option value="NGN">₦ - NGN</option>
+    </select>
+  </section>
+
+  <section class="expense-form">
+    <input type="date" name="date" placeholder="Date" required>
+    <input type="text" name="category" placeholder="Category (e.g., Food, Rent)" required>
+    <input type="number" name="amount" placeholder="Amount" required>
+    <textarea name="remarks" placeholder="Remarks"></textarea>
+    <button type="button" class="add-expense">Add Expense</button>
+  </section>
+
+  <section class="expense-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Remarks</th>
+          <th>Currency</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="report">
+    <button type="button" class="generate-report">Generate Report</button>
+    <table class="report-table" style="display:none;">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Total Amount</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr>
+          <th>Grand Total</th>
+          <th class="grand-total"></th>
+        </tr>
+      </tfoot>
+    </table>
+  </section>
+
+  <script src="expense tracker.js"></script>
+</body>
+</html>
