@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="expense tracker.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Expense Tracker</h1>
+
+    <form>
+        <input type="number" name="amount" placeholder="Amount" required>
+        <input type="text" name="remark" placeholder="Remark (e.g., Lunch at cafe)" required>
+        <select name="category" required>
+            <option value="food">Food</option>
+            <option value="transport">Transport</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="utilities">Utilities</option>
+            <option value="other">Other</option>
+        </select>
+        <input type="date" name="date" required>
+        <button type="button" onclick="addExpense()">Add Expense</button>
+    </form>   
+
+    <div class="filters">
+        <label for="period">Select Time Period:</label>
+        <input type="date" name="start-date">
+        <input type="date" name="end-date">
+        <button onclick="generateReport()">Generate Report</button>
+    </div>
+
+    <div class="report">
+        <h2>Expense Report</h2>
+        <div class="total-spent">Total Spent: $<span class="total">0</span></div>
+        <canvas class="expense-chart"></canvas>
+    </div>
+
+    <div class="currency-selector">
+        <label for="currency">Select Currency:</label>
+        <select name="currency" onchange="updateCurrency()">
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="NGN">NGN (₦)</option>
+        </select>
+    </div>  
+
+    <button onclick="printReport()">Print Report</button>
+</div>
+
+<script src="expense tracker.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>
