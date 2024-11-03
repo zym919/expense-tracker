@@ -1,169 +1,90 @@
-// Updated script.js
-
+document.querySelector('.add-expense').addEventListener('click', addExpense);
 const expenses = [];
-const categoryColors = {
-    food: '#FF6384',
-    transport: '#36A2EB',
-    entertainment: '#FFCE56',
-    utilities: '#4BC0C0',
-    other: '#9966FF'
+const currencyRates = {
+  USD: 1,
+  EUR: 0.85,
+  GBP: 0.75,
 };
 
-let exchangeRates = {
-    USD: 1, // Default rates if API fails
-    EUR: 0.85,
-    GBP: 0.75,
-    NGN: 460
-};
-let selectedCurrency = 'USD';
+async function addExpense() {
+  const date = document.querySelector('input[name="date"]').value;
+  const category = document.querySelector('input[name="category"]').value;
+  const amount = parseFloat(document.querySelector('input[name="amount"]').value);
+  const remarks = document.querySelector('textarea[name="remarks"]').value;
+  const currency = document.querySelector('select[name="currency"]').value;
 
-const apiKey = 'YOUR_API_KEY'; // Replace with your actual API key
-const apiUrl = `https://api.exchangeratesapi.io/latest?base=USD&symbols=USD,EUR,GBP,NGN`;
+  if (!date || !category || isNaN(amount)) return alert('Please complete all fields.');
 
-// Fetch exchange rates
-async function fetchExchangeRates() {
-    try {
-        const response = await fetch(`${apiUrl}&access_key=${apiKey}`);
-        const data = await response.json();
-
-        if (data && data.rates) {
-            exchangeRates = data.rates;
-            console.log('Exchange rates fetched:', exchangeRates);
-            updateReport(); // Update report with live rates
-        } else {
-            console.error('Error fetching exchange rates:', data);
-        }
-    } catch (error) {
-        console.error('Failed to fetch exchange rates:', error);
-    }
+  const convertedAmount = await convertCurrency(amount, currency);
+  expenses.push({ date, category, amount: convertedAmount, currency, remarks });
+  renderExpenses();
+  updateChart();
 }
 
-// Add expense entry
-function addExpense() {
-    const amount = parseFloat(document.querySelector('input[name="amount"]').value);
-    const remark = document.querySelector('input[name="remark"]').value;
-    const category = document.querySelector('select[name="category"]').value;
-    const date = document.querySelector('input[name="date"]').value;
-
-    // Check that all fields are filled
-    if (amount && category && date && remark) {
-        // Create expense object and push to expenses array
-        expenses.push({ amount, category, date: new Date(date), remark });
-        console.log('Expense added:', { amount, category, date, remark });
-        
-        // Clear form fields
-        document.querySelector('input[name="amount"]').value = '';
-        document.querySelector('input[name="remark"]').value = '';
-        document.querySelector('input[name="date"]').value = '';
-        
-        // Update report after adding expense
-        updateReport();
-    } else {
-        alert('Please fill in all fields.');
-    }
+async function convertCurrency(amount, currency) {
+  try {
+    const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
+    const data = await response.json();
+    return amount * data.rates.USD;
+  } catch (error) {
+    return amount * (currencyRates[currency] || 1);
+  }
 }
 
-// Filter expenses by date range
-function filterExpenses(start, end) {
-    return expenses.filter(expense => 
-        expense.date >= new Date(start) && expense.date <= new Date(end)
-    );
+function renderExpenses() {
+  const tableBody = document.querySelector('table tbody');
+  tableBody.innerHTML = '';
+  expenses.forEach(expense => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${expense.date}</td>
+      <td>${expense.category}</td>
+      <td>${expense.amount.toFixed(2)}</td>
+      <td>${expense.remarks}</td>
+      <td>${expense.currency}</td>
+    `;
+    tableBody.appendChild(row);
+  });
 }
 
-// Calculate total amount for filtered expenses
-function calculateTotal(filteredExpenses) {
-    const totalInUSD = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-    return (totalInUSD * exchangeRates[selectedCurrency]).toFixed(2);
+function updateChart() {
+  const categoryTotals = {};
+  expenses.forEach(expense => {
+    categoryTotals[expense.category] = (categoryTotals[expense.category] || 0) + expense.amount;
+  });
+
+  const chart = document.getElementById('expenseChart').getContext('2d');
+  new Chart(chart, {
+    type: 'pie',
+    data: {
+      labels: Object.keys(categoryTotals),
+      datasets: [{
+        data: Object.values(categoryTotals),
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF9F40', '#4BC0C0'],
+      }],
+    },
+  });
 }
 
-// Generate and display report
-function generateReport() {
-    const startDate = document.querySelector('input[name="start-date"]').value;
-    const endDate = document.querySelector('input[name="end-date"]').value;
+document.querySelector('.print-report').addEventListener('click', printReport);
 
-    if (startDate && endDate) {
-        const filteredExpenses = filterExpenses(startDate, endDate);
-        const totalSpent = calculateTotal(filteredExpenses);
-
-        document.querySelector('.total').innerText = `${totalSpent} ${selectedCurrency}`;
-        drawChart(filteredExpenses, startDate, endDate);
-    } else {
-        alert('Please select a time period.');
-    }
-}
-
-// Draw chart for expenses in selected period
-function drawChart(expensesData, startDate, endDate) {
-    const ctx = document.querySelector('.expense-chart').getContext('2d');
-    const groupedByCategory = {};
-
-    // Aggregate expenses by category
-    expensesData.forEach(expense => {
-        groupedByCategory[expense.category] = 
-            (groupedByCategory[expense.category] || 0) + expense.amount;
-    });
-
-    const chartData = {
-        labels: Object.keys(groupedByCategory),
-        datasets: [{
-            data: Object.values(groupedByCategory).map(amount => amount * exchangeRates[selectedCurrency]),
-            backgroundColor: Object.keys(groupedByCategory).map(category => categoryColors[category])
-        }]
-    };
-
-    new Chart(ctx, {
-        type: 'pie',
-        data: chartData,
-        options: {
-            responsive: true,
-            title: {
-                display: true,
-                text: `Expenses from ${startDate} to ${endDate} (${selectedCurrency})`
-            }
-        }
-    });
-}
-
-// Print report for specific time period
 function printReport() {
-    const startDate = document.querySelector('input[name="start-date"]').value;
-    const endDate = document.querySelector('input[name="end-date"]').value;
-    const filteredExpenses = filterExpenses(startDate, endDate);
-    const reportWindow = window.open('', '_blank');
+  const startDate = prompt('Enter start date (YYYY-MM-DD):');
+  const endDate = prompt('Enter end date (YYYY-MM-DD):');
 
-    reportWindow.document.write(`<h1>Expense Report (${startDate} - ${endDate})</h1>`);
-    reportWindow.document.write('<ul>');
+  const filteredExpenses = expenses.filter(expense => 
+    new Date(expense.date) >= new Date(startDate) && new Date(expense.date) <= new Date(endDate)
+  );
 
-    filteredExpenses.forEach(expense => {
-        const convertedAmount = (expense.amount * exchangeRates[selectedCurrency]).toFixed(2);
-        reportWindow.document.write(`
-            <li>${expense.date.toLocaleDateString()}: ${expense.category} - ${convertedAmount} ${selectedCurrency}
-            <br>Remark: ${expense.remark}</li>
-        `);
-    });
+  let reportContent = `Expense Report from ${startDate} to ${endDate}\n\n`;
+  reportContent += `Date\tCategory\tAmount\tRemarks\tCurrency\n`;
 
-    const totalSpent = calculateTotal(filteredExpenses);
-    reportWindow.document.write(`</ul>`);
-    reportWindow.document.write(`<p><strong>Total Spent:</strong> ${totalSpent} ${selectedCurrency}</p>`);
-    reportWindow.document.close();
-    reportWindow.print();
+  filteredExpenses.forEach(expense => {
+    reportContent += `${expense.date}\t${expense.category}\t${expense.amount.toFixed(2)}\t${expense.remarks}\t${expense.currency}\n`;
+  });
+
+  const reportWindow = window.open('', '_blank');
+  reportWindow.document.write(`<pre>${reportContent}</pre>`);
+  reportWindow.document.close();
+  reportWindow.print();
 }
-
-// Change currency and update report
-function updateCurrency() {
-    selectedCurrency = document.querySelector('select[name="currency"]').value;
-    console.log('Currency changed to:', selectedCurrency);
-    updateReport();
-}
-
-// Update report summary for today
-function updateReport() {
-    const today = new Date().toISOString().slice(0, 10);
-    const filteredExpenses = filterExpenses(today, today);
-    const totalSpent = calculateTotal(filteredExpenses);
-
-    document.querySelector('.total').innerText = `${totalSpent} ${selectedCurrency}`;
-}
-
-// Fetch exchange rates on page load
-fetchExchangeRates();
