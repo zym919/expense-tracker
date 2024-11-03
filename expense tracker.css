@@ -11,8 +11,16 @@ body {
     text-align: center;
     padding: 1rem;
   }
+
+  .currency-selection {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+  }
   
+  .currency-selection label,
   .currency-selection select {
+    text-align: center;
     width: 120px;
   }
   
